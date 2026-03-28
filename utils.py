@@ -254,11 +254,21 @@ def train_eval_model(name, model, x_tr, y_tr, x_va, y_va):
     prec   = precision_score(y_va, pred, average="weighted", zero_division=1)
     recall = recall_score(y_va, pred, average="weighted", zero_division=1)
 
+    result = {
+        "Model": name,
+        "Train Time (s)": round(t2-t1, 3),
+        "Val Acc": round(acc, 4),
+        "Val Precision": round(prec, 4),
+        "Val Recall": round(recall, 4)
+    }
+
     print(f"Model: {name}")
     print(f"Training Time: {t2-t1:.3f}")
     print(f'acc: {acc:.4f}')
     print(f'prec:{prec:.4f}')
     print(f'recall:{recall:.4f}\n')
+
+    return result
 
 
 def stratified_subset(X, y, n_samples):
