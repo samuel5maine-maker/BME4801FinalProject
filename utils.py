@@ -242,10 +242,13 @@ def build_pipelines():
 # Training / evaluation helpers
 # ---------------------------------------------------------------------------
 
-def train_eval_model(name, model, x_tr, y_tr, x_va, y_va):
+def train_eval_model(name, model, x_tr, y_tr, x_va, y_va, callbacks=[]):
     '''trains and evaluates the model'''
     t1 = time.time()
-    model.fit(x_tr, y_tr)
+    if callbacks:
+        model.fit(x_tr, y_tr, model__callbacks=callbacks)
+    else:
+        model.fit(x_tr, y_tr)
     t2 = time.time()
 
     pred = model.predict(x_va)
@@ -259,6 +262,8 @@ def train_eval_model(name, model, x_tr, y_tr, x_va, y_va):
     print(f'acc: {acc:.4f}')
     print(f'prec:{prec:.4f}')
     print(f'recall:{recall:.4f}\n')
+
+    return (acc, prec, recall)
 
 
 def stratified_subset(X, y, n_samples):
