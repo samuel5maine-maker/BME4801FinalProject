@@ -256,14 +256,21 @@ def train_eval_model(name, model, x_tr, y_tr, x_va, y_va, callbacks=[]):
     acc    = accuracy_score(y_va, pred)
     prec   = precision_score(y_va, pred, average="weighted", zero_division=1)
     recall = recall_score(y_va, pred, average="weighted", zero_division=1)
+    train_time = t2 - t1
 
     print(f"Model: {name}")
-    print(f"Training Time: {t2-t1:.3f}")
+    print(f"Training Time: {train_time:.3f}")
     print(f'acc: {acc:.4f}')
     print(f'prec:{prec:.4f}')
     print(f'recall:{recall:.4f}\n')
 
-    return (acc, prec, recall)
+    return {
+        "Model": name,
+        "Train Time (s)": round(train_time, 3),
+        "Val Acc": round(acc, 4),
+        "Val Precision": round(prec, 4),
+        "Val Recall": round(recall, 4),
+    }
 
 
 def stratified_subset(X, y, n_samples):
@@ -271,3 +278,43 @@ def stratified_subset(X, y, n_samples):
     split = StratifiedShuffleSplit(n_splits=1, train_size=n_samples, random_state=42)
     idx, _ = next(split.split(X, y))
     return X[idx], y[idx]
+
+#same function
+def train_eval_cnn(name, model, x_tr, y_tr, x_va, y_va, epochs=20, batch_size=32, callbacks=None):
+    if callbacks is None:
+        callbacks = []
+
+    t1 = time.time()
+
+    history = model.fit(
+        x_tr, y_tr,
+        validation_data=(x_va, y_va),
+        epochs=epochs,
+        batch_size=batch_size,
+        verbose=1,
+        callbacks=callbacks
+    )
+
+    t2 = time.time()
+
+    probs = model.predict(x_va)
+    pred = probs.argmax(axis=1)
+
+    acc = accuracy_score(y_va, pred)
+    prec = precision_score(y_va, pred, average="weighted")
+    rec = recall_score(y_va, pred, average="weighted")
+    train_time = t2 - t1
+
+    print(f"Model: {name}")
+    print(f"Training Time: {train_time:.3f}")
+    print(f'acc: {acc:.4f}')
+    print(f'prec:{prec:.4f}')
+    print(f'recall:{rec:.4f}\n')
+
+    return history, {
+        "Model": name,
+        "Train Time (s)": round(train_time, 3),
+        "Val Acc": round(acc, 4),
+        "Val Precision": round(prec, 4),
+        "Val Recall": round(rec, 4)
+    }
