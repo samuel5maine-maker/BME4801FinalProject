@@ -8,7 +8,6 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import StratifiedShuffleSplit
 
-
 # ---------------------------------------------------------------------------
 # Label names
 # ---------------------------------------------------------------------------
@@ -112,6 +111,7 @@ def median(array, size=3):
 
 def flatten_data(X):
     '''Flattens a 3D array into a 2D one'''
+    
     new_arr = X.reshape(X.shape[0], -1)
     return new_arr
 
