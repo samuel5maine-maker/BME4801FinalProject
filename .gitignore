@@ -3,3 +3,6 @@ venv/
 env/
 __pycache__/
 milestone_2_PDF.pdf
+hyperband_dr
+my_logs
+tuning_results
