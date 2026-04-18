@@ -5,7 +5,7 @@ from sklearn.svm import LinearSVC
 from sklearn.preprocessing import StandardScaler, FunctionTransformer, MinMaxScaler
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
-from sklearn.metrics import accuracy_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.model_selection import StratifiedShuffleSplit
 
 # ---------------------------------------------------------------------------
@@ -242,12 +242,15 @@ def build_pipelines():
 # Training / evaluation helpers
 # ---------------------------------------------------------------------------
 
-def train_eval_model(name, model, x_tr, y_tr, x_va, y_va, callbacks=[]):
+def train_eval_model(name, model, x_tr, y_tr, x_va, y_va, sample_weights, validation_weights=None, mode="keras", callbacks=[]):
     '''trains and evaluates the model'''
     t1 = time.time()
-    if callbacks:
-        model.fit(x_tr, y_tr, model__callbacks=callbacks)
-    else:
+    if mode == "keras":
+        if callbacks:
+            model.fit(x_tr, y_tr, model__sample_weight=sample_weights, model__callbacks=callbacks)
+        else:
+            model.fit(x_tr, y_tr, model__sample_weight=sample_weights)
+    elif mode == "scikit":
         model.fit(x_tr, y_tr)
     t2 = time.time()
 
@@ -256,6 +259,7 @@ def train_eval_model(name, model, x_tr, y_tr, x_va, y_va, callbacks=[]):
     acc    = accuracy_score(y_va, pred)
     prec   = precision_score(y_va, pred, average="weighted", zero_division=1)
     recall = recall_score(y_va, pred, average="weighted", zero_division=1)
+    f1 = f1_score(y_va, pred, average="weighted", zero_division=1)
 
     print(f"Model: {name}")
     print(f"Training Time: {t2-t1:.3f}")
@@ -263,7 +267,7 @@ def train_eval_model(name, model, x_tr, y_tr, x_va, y_va, callbacks=[]):
     print(f'prec:{prec:.4f}')
     print(f'recall:{recall:.4f}\n')
 
-    return (acc, prec, recall)
+    return {"name": name, "time":t2-t1, "acc": acc, "prec":prec, "recall":recall, "f1": f1}
 
 
 def stratified_subset(X, y, n_samples):
