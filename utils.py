@@ -111,9 +111,15 @@ def median(array, size=3):
 
 def flatten_data(X):
     '''Flattens a 3D array into a 2D one'''
-    
+
     new_arr = X.reshape(X.shape[0], -1)
     return new_arr
+
+
+def prep_for_cnn(X):
+    X = X.astype("float32") / 255.0
+    X = X.reshape(X.shape[0], X.shape[1], X.shape[2], 1)
+    return X
 
 
 def basic_new_features(images):
